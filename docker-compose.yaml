@@ -1,0 +1,39 @@
+version: '3'
+services: 
+  ##################
+  ## Service One ###
+  ##################
+  serviceoneapp:
+    build: 
+      context: .
+      dockerfile: ServiceOne/ServiceOne/Dockerfile
+    ports: 
+      - "50001:50001"
+      - "3500:3500"
+    depends_on: 
+      - redis
+    networks: 
+      - dapr-pubsub-shared
+  serviceoneapp-dapr:
+    image: "daprio/daprd:edge"
+    command: [ "./daprd",
+    "-app-id", "serviceoneapp",
+    "-app-port", "8094",
+    "-dapr-grpc-port", "50001",
+    "-components-path", "/ComponentsLocal"]
+    volumes: 
+      - "./ComponentsLocal/:/ComponentsLocal"
+    depends_on: 
+      - serviceoneapp
+    network_mode: "service:serviceoneapp"
+  ###############
+  #### Redis ####
+  ###############
+  redis:
+    image: "redis:alpine"
+    ports: 
+      - "6380:6379"
+    networks: 
+      - dapr-pubsub-shared
+networks: 
+  dapr-pubsub-shared:
