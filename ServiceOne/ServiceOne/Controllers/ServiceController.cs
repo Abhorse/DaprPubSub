@@ -16,7 +16,7 @@ namespace ServiceOne.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Errpr = ex.ToString() });
+                return BadRequest(new { Error = ex.ToString() });
             }
         }
     }

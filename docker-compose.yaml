@@ -12,6 +12,7 @@ services:
       - "3500:3500"
     depends_on: 
       - redis
+      - placement
     networks: 
       - dapr-pubsub-shared
   serviceoneapp-dapr:
@@ -19,6 +20,7 @@ services:
     command: [ "./daprd",
     "-app-id", "serviceoneapp",
     "-app-port", "8094",
+    "-placement-host-address", "placement:50007",
     "-dapr-grpc-port", "50001",
     "-components-path", "/ComponentsLocal"]
     volumes: 
@@ -26,6 +28,43 @@ services:
     depends_on: 
       - serviceoneapp
     network_mode: "service:serviceoneapp"
+  ###############
+  ## ServiceTwo##
+  ###############
+  servicetwoapp:
+    build: 
+      context: .
+      dockerfile: ServiceTwo/ServiceTwo/Dockerfile
+    ports: 
+      - "50002:50002"
+    depends_on: 
+      - redis
+      - placement
+    networks: 
+      - dapr-pubsub-shared
+  servicetwoapp-dapr:
+    image: "daprio/daprd:edge"
+    command: [ "./daprd",
+    "-app-id", "servicetwoapp",
+    "-app-port", "8095",
+    "-placement-host-address", "placement:50007",
+    "-dapr-grpc-port", "50001",
+    "-components-path", "/ComponentsLocal"]
+    volumes: 
+      - "./ComponentsLocal/:/ComponentsLocal"
+    depends_on: 
+      - servicetwoapp
+    network_mode: "service:servicetwoapp"
+  ############################
+  # Dapr placement service
+  ############################
+  placement:
+    image: "daprio/dapr"
+    command: ["./placement", "-port", "50007"]
+    ports:
+      - "50007:50007"
+    networks:
+      - dapr-pubsub-shared
   ###############
   #### Redis ####
   ###############

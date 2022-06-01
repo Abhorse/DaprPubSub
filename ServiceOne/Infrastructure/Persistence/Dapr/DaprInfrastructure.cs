@@ -5,7 +5,7 @@ namespace Infrastructure.Persistence.Dapr
 {
     public class DaprInfrastructure : IDaprInfrastructure
     {
-        public async Task PublishTopic(string pubsub, string topic, dynamic body)
+        public async Task PublishTopic<T>(string pubsub, string topic, T body)
         {
             var daprClient = new DaprClientBuilder().Build();
             if (body == null)
